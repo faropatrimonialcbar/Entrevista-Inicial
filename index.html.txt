@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suite de Asesoría Profesional - Faro Patrimonial</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <!-- HTML2PDF Library CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-display {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      background: #10b981;
+      border: 2px solid #ffffff;
+      border-radius: 9999px;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      -webkit-appearance: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-950">
+
+  <!-- CABECERA DE LA SUITE UNIFICADA -->
+  <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center space-x-3">
+      <div class="bg-gradient-to-tr from-emerald-500 to-indigo-500 p-2 rounded-xl text-slate-950 shadow-lg shadow-emerald-500/10">
+        <svg class="w-6 h-6 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-indigo-300 bg-clip-text text-transparent">
+          Faro Patrimonial • Suite de Asesoría
+        </h1>
+        <p class="text-xs text-slate-400">Herramienta Integral de Diagnóstico y Cierre de Planes</p>
+      </div>
+    </div>
+
+    <!-- SWITCH DE MODOS DE TRABAJO -->
+    <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+      <button id="tab-simulator" onclick="switchView('simulator')" class="px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/10">
+        <span>📈</span> Simulador V2
+      </button>
+      <button id="tab-copilot" onclick="switchView('copilot')" class="px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-400 hover:text-slate-200">
+        <span>⏱️</span> Copiloto de Entrevista
+      </button>
+    </div>
+    
+    <!-- ACCIONES DINÁMICAS EN CABECERA -->
+    <div class="flex items-center gap-3">
+      <!-- Cronómetro del Copiloto -->
+      <div id="header-timer" class="hidden bg-slate-950 px-3 py-1.5 rounded-xl flex items-center space-x-2 border border-slate-800">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="timer-display" class="font-mono text-xs text-emerald-400 font-semibold">00:00</span>
+        <button id="btn-timer-toggle" onclick="toggleTimer()" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-slate-300 transition">Iniciar</button>
+        <button onclick="resetTimer()" class="text-[10px] text-slate-500 hover:text-slate-300">Reset</button>
+      </div>
+
+      <!-- Botón Exportación PDF -->
+      <button id="btn-generate-pdf" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/10 flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        Descargar Reporte PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR GENERAL MULTI-VISTA -->
+  <main class="flex-1 w-full">
+
+    <!-- VISTA 1: SIMULADOR DE DIAGNÓSTICO PATRIMONIAL V2 -->
+    <div id="view-simulator" class="p-4 md:p-6 max-w-[1600px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- COLUMNA IZQUIERDA: INPUTS -->
+      <section class="lg:col-span-4 space-y-6">
+        
+        <!-- CARD 1: DATOS GENERALES (SINCRONIZADOS) -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 to-transparent"></div>
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <span class="text-emerald-400">👤</span> Datos del Prospecto / Cliente
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nombre Completo</label>
+              <input type="text" id="client-name" value="Inversor de Pruebas" oninput="syncClientName(this.value)" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-medium" />
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Edad Actual</label>
+              <input type="number" id="client-age" value="35" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-mono" />
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Retiro Objetivo</label>
+              <input type="number" id="client-retirement" value="65" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-mono" />
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: BALANCE PATRIMONIAL -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 to-transparent"></div>
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <span class="text-blue-400">🏛️</span> Balance Patrimonial Actual (USD)
+          </h2>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Activo Líquido (Efectivo/Bancos)</label>
+                <span class="text-xs text-slate-600">Disponibilidad inmediata</span>
+              </div>
+              <input type="number" id="asset-liquid" value="5000" class="w-full bg-slate-950/80 border border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-mono" />
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Activos en Inversiones (Acciones, FCI, etc)</label>
+                <span class="text-xs text-slate-600">Generan rendimientos</span>
+              </div>
+              <input type="number" id="asset-invested" value="12000" class="w-full bg-slate-950/80 border border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-mono" />
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Activos de Uso / Inmuebles / Vehículos</label>
+                <span class="text-xs text-slate-600">No convertibles rápido</span>
+              </div>
+              <input type="number" id="asset-use" value="45000" class="w-full bg-slate-950/80 border border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-mono" />
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-[10px] font-bold text-red-400 uppercase tracking-wider">Total Deudas / Pasivos Totales</label>
+                <span class="text-xs text-red-500/50">Monto total adeudado</span>
+              </div>
+              <input type="number" id="debt-total" value="15000" class="w-full bg-slate-950/80 border border-slate-800 focus:border-red-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-mono" />
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3: FLUJO DE CAJA MENSUAL -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 to-transparent"></div>
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <span>📈</span> Flujo de Caja Mensual (USD)
+          </h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Ingresos Totales (Sueldo + extras)</label>
+              <input type="number" id="income-monthly" value="3000" class="w-full bg-slate-950/80 border border-slate-800 focus:border-amber-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-mono" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Gastos Fijos</label>
+                <input type="number" id="expense-fixed" value="1800" class="w-full bg-slate-950/80 border border-slate-800 focus:border-amber-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-mono" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Gastos Variables</label>
+                <input type="number" id="expense-variable" value="800" class="w-full bg-slate-950/80 border border-slate-800 focus:border-amber-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-mono" />
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-[10px] font-bold text-red-400/80 uppercase tracking-wider">Pago de Deudas Mensuales</label>
+                <span class="text-xs text-slate-600">Sumado en gastos</span>
+              </div>
+              <input type="number" id="expense-debt" value="300" class="w-full bg-slate-950/80 border border-slate-800 focus:border-red-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-mono" />
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- COLUMNA DERECHA: RESULTADOS, ETAPAS Y PROYECCIONES -->
+      <section class="lg:col-span-8 space-y-6">
+        
+        <!-- CUADRO DE MANDOS DE SALUD Y SCORE -->
+        <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+          
+          <div class="flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-800/80 pb-4 md:pb-0">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Health Score</p>
+            <div class="relative w-28 h-28 flex items-center justify-center">
+              <svg class="absolute w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                <path class="text-slate-800" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path id="score-circle" class="text-emerald-500 transition-all duration-1000" stroke-dasharray="0, 100" stroke-width="3" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div class="text-center z-10">
+                <span id="score-number" class="text-3xl font-black font-display text-white">0</span>
+                <span class="text-sm font-semibold text-slate-400">/100</span>
+              </div>
+            </div>
+            <span id="score-label" class="text-xs font-bold text-emerald-400 tracking-wider uppercase mt-3">Calculando...</span>
+          </div>
+
+          <div class="md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-6 text-center md:text-left">
+            <div>
+              <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Patrimonio Neto</p>
+              <h3 id="calc-net-worth" class="text-2xl font-black font-mono text-slate-200 mt-1">USD 0</h3>
+              <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Activos - Pasivos</span>
+            </div>
+
+            <div>
+              <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tasa de Ahorro Actual</p>
+              <h3 id="calc-savings-rate" class="text-2xl font-black font-mono text-emerald-400 mt-1">0%</h3>
+              <span id="label-savings-rate" class="text-[10px] text-emerald-500/80 font-bold uppercase tracking-widest">Súperavit</span>
+            </div>
+
+            <div class="col-span-2 md:col-span-1">
+              <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Supervivencia Líquida</p>
+              <h3 id="calc-survival" class="text-2xl font-black font-mono text-indigo-400 mt-1">0 meses</h3>
+              <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Respaldo actual</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SECCIÓN DE LAS 3 ETAPAS -->
+        <div class="space-y-6">
+          
+          <!-- ETAPA 1: OPTIMIZACIÓN DE CASHFLOW -->
+          <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <span class="bg-emerald-500/10 text-emerald-400 p-2 rounded-xl text-xs font-black">ETAPA 1</span>
+                <div>
+                  <h3 class="text-base font-bold text-slate-100">Optimización de Gastos e Ingresos</h3>
+                  <p class="text-xs text-slate-400">Reduce ineficiencias y libera capital oculto para iniciar la aceleración.</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-xs text-slate-500 block uppercase font-bold tracking-widest">Flujo Mensual Recuperado</span>
+                <span id="stage1-monthly-recovered" class="text-lg font-black font-mono text-emerald-400">USD 0</span>
+              </div>
+            </div>
+
+            <div class="bg-slate-950/60 border border-slate-850 p-4 rounded-xl space-y-4">
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <span class="text-xs font-semibold text-slate-400">Porcentaje de optimización sobre gastos actuales</span>
+                  <span id="slider-opt-val" class="text-xs font-bold font-mono text-emerald-400">15%</span>
+                </div>
+                <input type="range" id="slider-optimization" min="0" max="40" value="15" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer" />
+              </div>
+              
+              <p class="text-[11px] text-slate-400 italic">
+                📌 Recuperando un <strong id="opt-pct">15%</strong> de gastos, tu flujo mensual disponible para construir libertad pasa de <span id="opt-current-flow" class="text-slate-300">USD 0</span> a <strong id="opt-new-flow" class="text-emerald-400">USD 0</strong> (<span id="opt-annual-flow" class="text-emerald-300 font-bold">USD 0 anuales</span>).
+              </p>
+            </div>
+          </div>
+
+          <!-- ETAPA 2: VARIACIÓN DE LA LIBERTAD FINANCIERA (EL MOTOR DE CASHFLOW) -->
+          <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-teal-500 to-indigo-500"></div>
+            
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <span class="bg-teal-500/10 text-teal-400 p-2 rounded-xl text-xs font-black">ETAPA 2</span>
+                <div>
+                  <h3 class="text-base font-bold text-slate-100">Dinámica de Libertad Financiera</h3>
+                  <p class="text-xs text-slate-400">Impacto inmediato de la variación de tu Cashflow mensual sobre tu fecha de retiro seguro.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bloque de cálculo matemático en base al Cashflow -->
+            <div class="bg-slate-950/60 border border-slate-850 p-4 rounded-xl space-y-6">
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Número FI Requerido -->
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl">
+                  <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">Número de Libertad Financiera (FI Number)</span>
+                  <div class="text-2xl font-black font-mono text-slate-200 mt-1" id="fi-number">USD 0</div>
+                  <p class="text-[9px] text-slate-400 mt-1">Capital total necesario para vivir del 4% anual perpetuo sin trabajar.</p>
+                </div>
+
+                <!-- Velocidad de Ahorro / Compra de Tiempo -->
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+                  <div>
+                    <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">Tiempo Libre comprado por Año trabajado</span>
+                    <div class="text-2xl font-black font-mono text-teal-400 mt-1" id="years-bought">0.0 Años</div>
+                  </div>
+                  <p class="text-[9px] text-slate-400 mt-1" id="years-bought-desc">Cada año de trabajo te acerca al objetivo.</p>
+                </div>
+              </div>
+
+              <!-- Comparativa de Impacto: Actual vs Optimizado -->
+              <div class="border-t border-slate-800/80 pt-4">
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Impacto del Acelerador de Cashflow:</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="p-3 bg-red-950/10 border border-red-900/30 rounded-xl">
+                    <span class="text-[9px] text-red-400 uppercase font-bold tracking-widest">Retiro con Plan de Gasto Actual</span>
+                    <div class="text-lg font-bold font-mono text-slate-200 mt-1" id="time-to-fi-current">Nunca (Flujo negativo)</div>
+                    <p class="text-[9px] text-slate-400">Años requeridos para fonear el retiro al ritmo actual.</p>
+                  </div>
+
+                  <div class="p-3 bg-emerald-950/20 border border-emerald-900/30 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-emerald-500 text-slate-950 text-[7px] font-black uppercase px-1.5 py-0.5 rounded-bl">Acelera</div>
+                    <span class="text-[9px] text-emerald-400 uppercase font-bold tracking-widest">Retiro con Plan Optimizado Faro</span>
+                    <div class="text-lg font-bold font-mono text-emerald-400 mt-1" id="time-to-fi-optimized">0 años</div>
+                    <p class="text-[9px] text-emerald-400/80 font-semibold" id="time-difference-msg">¡Logras recortar 0 años de trabajo!</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ETAPA 3: BLINDAJE (INMUNIDAD) Y MULTIPLICACIÓN (CONSOLIDADO) -->
+          <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 to-indigo-500"></div>
+            
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <span class="bg-amber-500/10 text-amber-400 p-2 rounded-xl text-xs font-black">ETAPA 3</span>
+                <div>
+                  <h3 class="text-base font-bold text-slate-100">Blindaje de Inmunidad & Multiplicación de Capital</h3>
+                  <p class="text-xs text-slate-400">Fondea tu fondo de emergencia de forma paralela a tus inversiones de interés compuesto.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-slate-950/60 border border-slate-850 p-4 rounded-xl space-y-6">
+              
+              <!-- PARTE A: BLINDAJE (FONDO DE COBERTURA) -->
+              <div>
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <span class="text-indigo-400">🛡️</span> Sub-Fase A: Fondo de Cobertura
+                </h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="text-[11px] text-slate-400">Meses de gastos a inmunizar:</span>
+                      <span id="slider-months-val" class="text-xs font-bold font-mono text-indigo-400">6 meses</span>
+                    </div>
+                    <input type="range" id="slider-months" min="3" max="12" value="6" class="w-full accent-indigo-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer" />
+                  </div>
+
+                  <div class="bg-slate-900/60 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+                    <div>
+                      <span class="text-[9px] text-slate-500 uppercase font-bold tracking-widest block">Fondo de Cobertura Requerido</span>
+                      <span id="stage3-fund-required" class="text-base font-black font-mono text-indigo-400">USD 0</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-[9px] text-slate-500 uppercase font-bold tracking-widest block">Meses para Construirlo</span>
+                      <span id="stage3-fund-time" class="text-base font-black font-mono text-emerald-400">0 meses</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PARTE B: MULTIPLICACIÓN (INTERÉS COMPUESTO) -->
+              <div class="border-t border-slate-800/80 pt-4">
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <span class="text-amber-400">📈</span> Sub-Fase B: Motor de Multiplicación
+                </h4>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="text-[11px] text-slate-400">Retorno Anual Estimado (ROI):</span>
+                      <span id="slider-roi-val" class="text-xs font-bold font-mono text-amber-400">8%</span>
+                    </div>
+                    <input type="range" id="slider-roi" min="4" max="15" value="8" class="w-full accent-amber-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer" />
+                  </div>
+                  
+                  <div>
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="text-[11px] text-slate-400">Inversión Recurrente Mensual (USD):</span>
+                      <span id="slider-contrib-val" class="text-xs font-bold font-mono text-amber-400">USD 400</span>
+                    </div>
+                    <input type="range" id="slider-contrib" min="50" max="2000" step="50" value="400" class="w-full accent-amber-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer" />
+                  </div>
+                </div>
+
+                <!-- Matriz Temporal de Rendimientos -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div class="bg-slate-900/60 border border-slate-800 p-3 rounded-xl text-center">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">En 5 Años</p>
+                    <h4 id="proj-5y" class="text-base font-black font-mono text-slate-100 mt-1">USD 0</h4>
+                    <span id="interest-5y" class="text-[9px] text-slate-500 block">Interés: USD 0</span>
+                  </div>
+
+                  <div class="bg-slate-900/60 border border-slate-800 p-3 rounded-xl text-center">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">En 10 Años</p>
+                    <h4 id="proj-10y" class="text-base font-black font-mono text-slate-100 mt-1">USD 0</h4>
+                    <span id="interest-10y" class="text-[9px] text-slate-500 block">Interés: USD 0</span>
+                  </div>
+
+                  <div class="bg-indigo-950/20 border border-indigo-900/30 p-3 rounded-xl text-center relative overflow-hidden">
+                    <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">En 20 Años</p>
+                    <h4 id="proj-20y" class="text-lg font-black font-mono text-indigo-300 mt-1">USD 0</h4>
+                    <span id="interest-20y" class="text-[9px] text-indigo-400/60 block">Interés: USD 0</span>
+                  </div>
+
+                  <div class="bg-emerald-950/20 border border-emerald-900/30 p-3 rounded-xl text-center relative overflow-hidden">
+                    <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">En 30 Años</p>
+                    <h4 id="proj-30y" class="text-lg font-black font-mono text-emerald-300 mt-1">USD 0</h4>
+                    <span id="interest-30y" class="text-[9px] text-emerald-400/60 block">Interés: USD 0</span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- VISTA 2: COPILOTO DE ENTREVISTAS (SOPORTE PARA EL ASESOR) -->
+    <div id="view-copilot" class="hidden p-4 md:p-6 max-w-[1600px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- COLUMNA IZQUIERDA: CONTROLES Y RÚBRICA (COLS 5) -->
+      <section class="lg:col-span-5 space-y-6">
+        
+        <!-- CARD: CLIENTE SINCRONIZADO -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 to-transparent"></div>
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Datos Generales (Sincronizados)</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nombre Completo</label>
+              <input type="text" id="cand-name" value="Inversor de Pruebas" oninput="syncClientName(this.value)" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-medium" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Objetivo General</label>
+                <input type="text" id="cand-role" value="Planificación Patrimonial" oninput="updateReport()" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Fecha Diagnóstico</label>
+                <input type="date" id="cand-date" oninput="updateReport()" class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-sm text-slate-100 transition-all font-mono" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD: RÚBRICA DE EVALUACIÓN INTERACTIVA -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Rúbrica de Disciplina y Perfil</h2>
+            <span id="score-average" class="text-sm font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 font-mono">Score: 0.0</span>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300 font-medium">Voluntad de Optimización (Ahorro)</span>
+                <span id="val-tech" class="text-slate-400 font-mono">0/5</span>
+              </div>
+              <input type="range" min="0" max="5" step="0.5" value="0" id="range-tech" oninput="calculateScore()" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300 font-medium">Claridad en Objetivos de Largo Plazo</span>
+                <span id="val-comm" class="text-slate-400 font-mono">0/5</span>
+              </div>
+              <input type="range" min="0" max="5" step="0.5" value="0" id="range-comm" oninput="calculateScore()" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300 font-medium">Aversión al Riesgo (Tolerancia)</span>
+                <span id="val-culture" class="text-slate-400 font-mono">0/5</span>
+              </div>
+              <input type="range" min="0" max="5" step="0.5" value="0" id="range-culture" oninput="calculateScore()" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300 font-medium">Capacidad de Delegación y Confianza</span>
+                <span id="val-problem" class="text-slate-400 font-mono">0/5</span>
+              </div>
+              <input type="range" min="0" max="5" step="0.5" value="0" id="range-problem" oninput="calculateScore()" class="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+            </div>
+          </div>
+        </div>
+
+        <!-- ACCIONES RÁPIDAS DE COPIADO / EXPORTACIÓN -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-xl space-y-3">
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Acciones de Cierre</h2>
+          <p class="text-xs text-slate-400 leading-relaxed">Genera un reporte Markdown rápido con tus apuntes para guardarlo directo en tu block de notas.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button onclick="copyToClipboard()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 px-3 rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+              <span>Copiar Reporte</span>
+            </button>
+            <button onclick="clearAllCopilot()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/50 py-2.5 px-3 rounded-xl text-xs uppercase tracking-wider transition">
+              <span>Limpiar Campos</span>
+            </button>
+          </div>
+          <div id="copy-toast" class="hidden text-center text-xs text-emerald-400 bg-emerald-500/10 py-2 rounded-lg border border-emerald-500/20">
+            ¡Reporte copiado con éxito al portapapeles!
+          </div>
+        </div>
+
+      </section>
+
+      <!-- COLUMNA DERECHA: SECCIONES Y NOTAS (COLS 7) -->
+      <section class="lg:col-span-7 space-y-6">
+
+        <!-- CONTROL DE ETAPAS DE ENTREVISTA -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Guía de Sesión por Fases</h2>
+            <span id="current-phase-badge" class="bg-indigo-500/10 text-indigo-400 text-xs px-2.5 py-1 rounded border border-indigo-500/20 font-semibold font-mono">
+              Fase 1: Conexión Inicial
+            </span>
+          </div>
+
+          <div class="flex space-x-1 overflow-x-auto bg-slate-950 p-1 rounded-xl border border-slate-800/60 mb-4">
+            <button onclick="selectPhase(1, 'Conexión Inicial (0-5 min)')" id="phase-btn-1" class="phase-tab flex-1 whitespace-nowrap py-1.5 px-3 rounded-lg text-xs font-bold bg-emerald-500 text-slate-950 transition">1. Conexión</button>
+            <button onclick="selectPhase(2, 'Exploración de Situación (5-15 min)')" id="phase-btn-2" class="phase-tab flex-1 whitespace-nowrap py-1.5 px-3 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition">2. Exploración</button>
+            <button onclick="selectPhase(3, 'Evaluación de Objetivos (15-30 min)')" id="phase-btn-3" class="phase-tab flex-1 whitespace-nowrap py-1.5 px-3 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition">3. Objetivos</button>
+            <button onclick="selectPhase(4, 'Presentación de Faro V2 (30-40 min)')" id="phase-btn-4" class="phase-tab flex-1 whitespace-nowrap py-1.5 px-3 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition">4. Solución</button>
+            <button onclick="selectPhase(5, 'Cierre y Siguientes Pasos (40-45 min)')" id="phase-btn-5" class="phase-tab flex-1 whitespace-nowrap py-1.5 px-3 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition">5. Cierre</button>
+          </div>
+
+          <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-850 text-xs space-y-3 leading-relaxed">
+            <div id="phase-desc-1" class="phase-content space-y-2">
+              <p class="text-slate-300 font-bold text-xs text-emerald-400">OBJETIVO: Construir rapport, romper el hielo y definir el encuadre de la sesión.</p>
+              <ul class="list-disc list-inside space-y-1 text-slate-400">
+                <li>Preséntate brevemente y explica la dinámica del encuentro.</li>
+                <li>Pregúntale qué expectativas tiene sobre la reunión de hoy.</li>
+                <li>Explícale que la sesión se dividirá en entender su flujo actual, auditar su balance y plantear escenarios de libertad con el simulador.</li>
+              </ul>
+            </div>
+            <div id="phase-desc-2" class="phase-content hidden space-y-2">
+              <p class="text-slate-300 font-bold text-xs text-emerald-400">OBJETIVO: Descubrir cómo maneja su dinero hoy, identificar deudas y fugas.</p>
+              <ul class="list-disc list-inside space-y-1 text-slate-400">
+                <li>Pregunta sobre su estructura de ingresos (único sueldo o diversificado).</li>
+                <li>Identifica si conoce exactamente su tasa de ahorro mensual actual.</li>
+                <li>Presta atención a su relación con la tarjeta de crédito y pasivos financieros.</li>
+              </ul>
+            </div>
+            <div id="phase-desc-3" class="phase-content hidden space-y-2">
+              <p class="text-slate-300 font-bold text-xs text-emerald-400">OBJETIVO: Definir metas concretas (retiro seguro, fondos, inmuebles).</p>
+              <ul class="list-disc list-inside space-y-1 text-slate-400">
+                <li>¿A qué edad le gustaría tener la opción real de dejar de trabajar por obligación?</li>
+                <li>¿Qué nivel de gastos mensuales necesitaría tener cubierto de forma perpetua?</li>
+                <li>¿Tiene experiencia previa invirtiendo o prefiere un perfil conservador?</li>
+              </ul>
+            </div>
+            <div id="phase-desc-4" class="phase-content hidden space-y-2">
+              <p class="text-slate-300 font-bold text-xs text-emerald-400">OBJETIVO: Mostrarle su Score de Salud y proyecciones en tiempo real (Simulador V2).</p>
+              <ul class="list-disc list-inside space-y-1 text-slate-400">
+                <li>Regresa al "Modo Simulador" para mostrarle su Score de Salud y patrimonio neto calculado.</li>
+                <li>Enséñale la progresión del plan en las tres etapas mediante el uso de los sliders.</li>
+                <li>Enfatiza en los "años de vida en libertad" adicionales que ganará implementando Faro.</li>
+              </ul>
+            </div>
+            <div id="phase-desc-5" class="phase-content hidden space-y-2">
+              <p class="text-slate-300 font-bold text-xs text-emerald-400">OBJETIVO: Cotizar el servicio de Faro Patrimonial Premium y concretar el plan de acción.</p>
+              <ul class="list-disc list-inside space-y-1 text-slate-400">
+                <li>Explícale en qué consiste tu mentoría privada (auditorías, portafolios, plataforma).</li>
+                <li>Preséntale la cotización anual de Faro Patrimonial.</li>
+                <li>Descarga el PDF y envíaselo de inmediato para formalizar la firma de inicio.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- BANCO DE PREGUNTAS DINÁMICO -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Preguntas Sugeridas de Indagación</h2>
+            <select id="question-filter" onchange="filterQuestions()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-300 focus:outline-none">
+              <option value="all">Todas las categorías</option>
+              <option value="diagnostico">Fase Diagnóstico</option>
+              <option value="metas">Fase Metas e Inversión</option>
+              <option value="objecion">Manejo de Objeciones</option>
+            </select>
+          </div>
+
+          <div class="max-h-60 overflow-y-auto space-y-2.5 pr-1" id="questions-list">
+            <div class="q-item p-3 bg-slate-950/80 border border-slate-850 rounded-lg flex items-start space-x-3 text-xs text-slate-200" data-cat="diagnostico">
+              <input type="checkbox" onchange="toggleQuestionText(this, '¿Si hoy te quedaras sin ingresos, cuántos meses podrías mantener tu estilo de vida actual?')" class="mt-0.5 accent-emerald-500 rounded">
+              <div>
+                <span class="inline-block px-1.5 py-0.5 rounded text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/10 mb-1 font-semibold">Diagnóstico</span>
+                <p class="font-medium text-slate-300">"¿Si hoy te quedaras sin ingresos, cuántos meses podrías mantener tu estilo de vida actual?"</p>
+              </div>
+            </div>
+            <div class="q-item p-3 bg-slate-950/80 border border-slate-850 rounded-lg flex items-start space-x-3 text-xs text-slate-200" data-cat="metas">
+              <input type="checkbox" onchange="toggleQuestionText(this, '¿A qué edad y con qué monto mensual te sentirías plenamente libre de no trabajar?')" class="mt-0.5 accent-emerald-500 rounded">
+              <div>
+                <span class="inline-block px-1.5 py-0.5 rounded text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/10 mb-1 font-semibold">Metas</span>
+                <p class="font-medium text-slate-300">"¿A qué edad y con qué monto mensual te sentirías plenamente libre de no trabajar?"</p>
+              </div>
+            </div>
+            <div class="q-item p-3 bg-slate-950/80 border border-slate-850 rounded-lg flex items-start space-x-3 text-xs text-slate-200" data-cat="objecion">
+              <input type="checkbox" onchange="toggleQuestionText(this, '¿Qué te detiene hoy de comenzar a planificar tu retiro formalmente?')" class="mt-0.5 accent-emerald-500 rounded">
+              <div>
+                <span class="inline-block px-1.5 py-0.5 rounded text-[9px] bg-red-500/10 text-red-400 border border-red-500/10 mb-1 font-semibold">Objeciones</span>
+                <p class="font-medium text-slate-300">"¿Qué te detiene hoy de comenzar a planificar tu retiro formalmente?"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTAS LIBRES Y GENERADOR EN TIEMPO REAL -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest font-display">Apuntes en Tiempo Real</h2>
+            <span class="text-[10px] text-slate-500">Mantiene el formato automáticamente</span>
+          </div>
+          <textarea id="interview-notes" oninput="updateReport()" rows="4" placeholder="Escribe aquí tus observaciones clave del cliente durante la sesión... (Ej: Fuerte voluntad de ordenamiento, le preocupan las deudas de tarjetas de crédito)." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition resize-none font-mono"></textarea>
+
+          <div>
+            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Vista Previa del Reporte de Entrevista (Markdown)</label>
+            <div class="bg-slate-950 rounded-xl border border-slate-800 p-4 max-h-56 overflow-y-auto">
+              <pre id="report-preview" class="text-xs text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">Completa los datos del cliente para comenzar...</pre>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- CONTENEDOR OCULTO PARA EXPORTACIÓN EN PDF -->
+  <div id="pdf-report-template" class="hidden text-slate-900 p-12 bg-white flex flex-col justify-between" style="width: 800px; min-height: 1130px; font-family: 'Plus Jakarta Sans', sans-serif;">
+    
+    <!-- PÁGINA 1: PORTADA Y AUDITORÍA DE CASHFLOW -->
+    <div class="space-y-8 flex-1 flex flex-col justify-between" style="min-height: 1040px;">
+      
+      <div class="flex justify-between items-start border-b border-slate-200 pb-6">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <div class="bg-emerald-600 text-white p-1 rounded-lg">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" />
+              </svg>
+            </div>
+            <span class="text-lg font-extrabold font-display tracking-wider text-slate-900">FARO PATRIMONIAL</span>
+          </div>
+          <p class="text-xs text-slate-500 uppercase tracking-widest font-semibold">Análisis y Estrategia de Libertad Financiera</p>
+        </div>
+        <div class="text-right">
+          <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Fecha de Auditoría</p>
+          <p class="text-xs font-bold text-slate-800 font-mono" id="pdf-date">2026-05-27</p>
+        </div>
+      </div>
+
+      <div class="my-auto space-y-4">
+        <span class="text-emerald-600 font-black text-xs uppercase tracking-widest bg-emerald-50 px-3 py-1.5 rounded-full">ESTUDIO DE PLANIFICACIÓN PRIVADA</span>
+        <h1 class="text-4xl font-black text-slate-900 leading-none">
+          Diagnóstico & Ruta de Libertad Financiera
+        </h1>
+        <p class="text-sm text-slate-500 max-w-lg">
+          Informe financiero preparado especialmente para <strong id="pdf-client-name" class="text-slate-800">Cargando...</strong>. Este documento resume tu balance actual, tu score de salud financiera y las estrategias para acelerar tu retiro seguro mediante la reestructuración de tu Cashflow.
+        </p>
+      </div>
+
+      <!-- Cuadrícula de Métricas de Salud -->
+      <div class="grid grid-cols-3 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+        <div class="text-center border-r border-slate-200/60">
+          <span class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Health Score</span>
+          <p id="pdf-score" class="text-4xl font-black text-emerald-600 mt-1 font-display">0/100</p>
+          <span class="text-[10px] text-emerald-600 font-semibold uppercase tracking-wider" id="pdf-score-desc">Calculando</span>
+        </div>
+        <div class="text-center border-r border-slate-200/60">
+          <span class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Patrimonio Neto</span>
+          <p id="pdf-net-worth" class="text-2xl font-black text-slate-800 mt-2 font-mono">USD 0</p>
+          <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Activos - Pasivos</span>
+        </div>
+        <div class="text-center">
+          <span class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Supervivencia Líquida</span>
+          <p id="pdf-survival-value" class="text-2xl font-black text-indigo-600 mt-2 font-mono">0 meses</p>
+          <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Respaldo actual</span>
+        </div>
+      </div>
+
+      <!-- Auditoría Cashflow -->
+      <div class="space-y-4">
+        <h3 class="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Auditoría de Flujo de Caja y Superávit</h3>
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-100 text-slate-600 font-bold uppercase tracking-wider">
+              <th class="p-3 rounded-l-xl">Concepto</th>
+              <th class="p-3 text-right rounded-r-xl">Monto Mensual (USD)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-700">
+            <tr>
+              <td class="p-3 font-semibold">Ingresos Mensuales de Operación</td>
+              <td class="p-3 text-right font-mono font-bold" id="pdf-income">USD 0</td>
+            </tr>
+            <tr>
+              <td class="p-3">Costos Fijos y de Vida actual</td>
+              <td class="p-3 text-right font-mono text-red-600" id="pdf-expense">USD 0</td>
+            </tr>
+            <tr class="bg-emerald-50/40 font-bold">
+              <td class="p-3 rounded-l-xl text-emerald-800">Superávit Optimizado (Faro Nivel 1)</td>
+              <td class="p-3 text-right font-mono text-emerald-700 rounded-r-xl" id="pdf-surplus">USD 0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="border-t border-slate-100 pt-4 flex justify-between items-center text-[10px] text-slate-400">
+        <span>Faro Patrimonial • Private Wealth Consulting</span>
+        <span>Página 1 de 2</span>
+      </div>
+
+    </div>
+
+    <!-- PÁGINA 2: ESTRATEGIA DE LIBERTAD E INVERSIÓN -->
+    <div class="page-break space-y-8 flex-1 flex flex-col justify-between mt-20" style="page-break-before: always; min-height: 1040px;">
+      
+      <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+        <span class="text-xs font-bold text-slate-800">Estrategia de Optimización e Inmunidad Activa</span>
+        <span class="text-xs text-slate-400">Faro Patrimonial</span>
+      </div>
+
+      <div class="space-y-6">
+        <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-2">Plan Estratégico por Etapas</h3>
+
+        <!-- Etapa 1 -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center bg-slate-50 px-4 py-2 rounded-xl">
+            <span class="text-xs font-bold text-slate-800 uppercase">Etapa 1: Optimización de Cashflow</span>
+            <span class="text-xs font-bold text-emerald-600 font-mono" id="pdf-s1-recovered">+ USD 0 / mes</span>
+          </div>
+          <p class="text-xs text-slate-500 pl-4 leading-relaxed">
+            Reestructuración inteligente de gastos variables sin descuidar tu calidad de vida, liberando un flujo de ahorro recurrente y sostenible.
+          </p>
+        </div>
+
+        <!-- Etapa 2 -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center bg-slate-50 px-4 py-2 rounded-xl">
+            <span class="text-xs font-bold text-slate-800 uppercase">Etapa 2: Aceleración de Libertad</span>
+            <span class="text-xs font-bold text-teal-600 font-mono" id="pdf-s2-fi-num">FI Number: USD 0</span>
+          </div>
+          <p class="text-xs text-slate-500 pl-4 leading-relaxed">
+            Al optimizar tu excedente, reduces drásticamente tu tiempo estimado de retiro de <strong id="pdf-s2-time-cur">0 años</strong> a <strong id="pdf-s2-time-opt" class="text-emerald-600">0 años</strong>. ¡Ganándole años enteros a tu jubilación!
+          </p>
+        </div>
+
+        <!-- Etapa 3 -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center bg-slate-50 px-4 py-2 rounded-xl">
+            <span class="text-xs font-bold text-slate-800 uppercase">Etapa 3: Blindaje de Inmunidad & Multiplicación</span>
+            <span class="text-xs font-bold text-amber-600 font-mono" id="pdf-s3-metrics">Retorno: 8% anual</span>
+          </div>
+          <p class="text-xs text-slate-500 pl-4 leading-relaxed">
+            Fondearemos un fondo de cobertura blindado de <strong id="pdf-s3-months">6 meses</strong> (Fondo: <strong id="pdf-s3-fund-goal">USD 0</strong>). Al mismo tiempo, el capital mensual de <strong id="pdf-s3-contrib">USD 400</strong> se multiplicará sistemáticamente:
+          </p>
+          
+          <div class="grid grid-cols-4 gap-4 text-center mt-3 pl-4">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">5 años</span>
+              <p class="text-xs font-black text-slate-800 font-mono mt-1" id="pdf-p-5y">USD 0</p>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">10 años</span>
+              <p class="text-xs font-black text-slate-800 font-mono mt-1" id="pdf-p-10y">USD 0</p>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">20 años</span>
+              <p class="text-xs font-black text-slate-800 font-mono mt-1" id="pdf-p-20y">USD 0</p>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">30 años</span>
+              <p class="text-xs font-black text-slate-800 font-mono mt-1" id="pdf-p-30y">USD 0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COTIZACIÓN -->
+      <div class="border-t-2 border-dashed border-slate-200 pt-6">
+        <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">Cotización del Plan Patrimonial Premium</h3>
+        <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div class="space-y-1">
+            <h4 class="text-base font-bold text-emerald-950">Faro Patrimonial - Acompañamiento Estratégico Anual</h4>
+            <p class="text-xs text-slate-600">Incluye sesiones de revisión táctica de portafolios, reequilibrio de activos y acceso a la plataforma.</p>
+          </div>
+          <div class="text-left md:text-right">
+            <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Inversión del Plan</span>
+            <span class="text-2xl font-black text-emerald-800 font-display">A COTIZAR EN SESIÓN</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-end pt-8">
+        <div class="space-y-1">
+          <p class="text-xs font-bold text-slate-800">Faro Patrimonial</p>
+          <p class="text-[10px] text-slate-400">Inteligencia Financiera para Inversores</p>
+        </div>
+        <div class="border-t border-slate-300 w-48 text-center pt-2">
+          <p class="text-[10px] text-slate-400">Firma del Plan de Acción</p>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-100 pt-4 flex justify-between items-center text-[10px] text-slate-400">
+        <span>© 2026 Faro Patrimonial. Todos los derechos reservados.</span>
+        <span>Página 2 de 2</span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- CONTROL LÓGICO E INTERACTIVIDAD (JAVASCRIPT) -->
+  <script>
+    // Variables de Estado para el Copiloto
+    let timer = null;
+    let seconds = 0;
+    let selectedQuestions = [];
+    let currentPhase = "Fase 1: Conexión Inicial";
+
+    // Inputs del DOM del Simulador
+    const clientNameInput = document.getElementById('client-name');
+    const clientAgeInput = document.getElementById('client-age');
+    const clientRetirementInput = document.getElementById('client-retirement');
+
+    const assetLiquidInput = document.getElementById('asset-liquid');
+    const assetInvestedInput = document.getElementById('asset-invested');
+    const assetUseInput = document.getElementById('asset-use');
+    const debtTotalInput = document.getElementById('debt-total');
+
+    const incomeMonthlyInput = document.getElementById('income-monthly');
+    const expenseFixedInput = document.getElementById('expense-fixed');
+    const expenseVariableInput = document.getElementById('expense-variable');
+    const expenseDebtInput = document.getElementById('expense-debt');
+
+    const sliderOpt = document.getElementById('slider-optimization');
+    const sliderMonths = document.getElementById('slider-months');
+    const sliderRoi = document.getElementById('slider-roi');
+    const sliderContrib = document.getElementById('slider-contrib');
+
+    // Inputs del DOM del Copiloto
+    const candNameInput = document.getElementById('cand-name');
+    const candRoleInput = document.getElementById('cand-role');
+    const candDateInput = document.getElementById('cand-date');
+    const interviewNotes = document.getElementById('interview-notes');
+
+    // CONMUTACIÓN DE VISTAS (PAGINADOR DE LA SUITE)
+    function switchView(view) {
+      const simView = document.getElementById('view-simulator');
+      const copView = document.getElementById('view-copilot');
+      const tabSim = document.getElementById('tab-simulator');
+      const tabCop = document.getElementById('tab-copilot');
+      const pdfBtn = document.getElementById('btn-generate-pdf');
+      const headerTimer = document.getElementById('header-timer');
+
+      if (view === 'simulator') {
+        simView.classList.remove('hidden');
+        copView.classList.add('hidden');
+        pdfBtn.classList.remove('hidden');
+        headerTimer.classList.add('hidden');
+
+        tabSim.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/10";
+        tabCop.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-400 hover:text-slate-200";
+      } else {
+        simView.classList.add('hidden');
+        copView.classList.remove('hidden');
+        pdfBtn.classList.add('hidden');
+        headerTimer.classList.remove('hidden');
+
+        tabCop.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/10";
+        tabSim.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-400 hover:text-slate-200";
+      }
+    }
+
+    // SINCRONIZACIÓN DE CLIENTE (UN SOLO LUGAR DE CARGA)
+    function syncClientName(val) {
+      clientNameInput.value = val;
+      candNameInput.value = val;
+      updateReport();
+    }
+
+    // CONTROL DEL TEMPORIZADOR (COPILOTO)
+    function toggleTimer() {
+      const btn = document.getElementById('btn-timer-toggle');
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+        btn.textContent = 'Reanudar';
+        btn.className = "text-[10px] bg-emerald-500 text-slate-950 px-2 py-0.5 rounded font-bold transition";
+      } else {
+        timer = setInterval(() => {
+          seconds++;
+          const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+          const secs = String(seconds % 60).padStart(2, '0');
+          document.getElementById('timer-display').textContent = `${mins}:${secs}`;
+        }, 1000);
+        btn.textContent = 'Pausar';
+        btn.className = "text-[10px] bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-slate-300 transition";
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timer = null;
+      seconds = 0;
+      document.getElementById('timer-display').textContent = '00:00';
+      document.getElementById('btn-timer-toggle').textContent = 'Iniciar';
+      document.getElementById('btn-timer-toggle').className = "text-[10px] bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-slate-300 transition";
+    }
+
+    // CONTROL DE FASES (COPILOTO)
+    function selectPhase(phaseId, phaseTitle) {
+      currentPhase = `Fase ${phaseId}: ${phaseTitle.split(' ')[0]}`;
+      document.getElementById('current-phase-badge').textContent = `Fase ${phaseId}: ${phaseTitle.split(' ')[0]}`;
+      
+      document.querySelectorAll('.phase-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`phase-desc-${phaseId}`).classList.remove('hidden');
+
+      document.querySelectorAll('.phase-tab').forEach(btn => {
+        btn.classList.remove('bg-emerald-500', 'text-slate-950');
+        btn.classList.add('text-slate-400');
+      });
+      const activeBtn = document.getElementById(`phase-btn-${phaseId}`);
+      activeBtn.classList.add('bg-emerald-500', 'text-slate-950');
+      activeBtn.classList.remove('text-slate-400');
+      
+      updateReport();
+    }
+
+    // BANCO DE PREGUNTAS (SOPORTE)
+    function filterQuestions() {
+      const val = document.getElementById('question-filter').value;
+      document.querySelectorAll('.q-item').forEach(el => {
+        if (val === 'all' || el.getAttribute('data-cat') === val) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+    }
+
+    function toggleQuestionText(checkbox, text) {
+      if (checkbox.checked) {
+        selectedQuestions.push(text);
+      } else {
+        selectedQuestions = selectedQuestions.filter(q => q !== text);
+      }
+      updateReport();
+    }
+
+    // CÁLCULO DE SCORE DE RÚBRICA (SOPORTE)
+    function calculateScore() {
+      const tech = parseFloat(document.getElementById('range-tech').value);
+      const comm = parseFloat(document.getElementById('range-comm').value);
+      const culture = parseFloat(document.getElementById('range-culture').value);
+      const problem = parseFloat(document.getElementById('range-problem').value);
+
+      document.getElementById('val-tech').textContent = `${tech}/5`;
+      document.getElementById('val-comm').textContent = `${comm}/5`;
+      document.getElementById('val-culture').textContent = `${culture}/5`;
+      document.getElementById('val-problem').textContent = `${problem}/5`;
+
+      const average = ((tech + comm + culture + problem) / 4).toFixed(1);
+      document.getElementById('score-average').textContent = `Score: ${average}`;
+
+      updateReport();
+    }
+
+    // LIMPIAR CAMPOS DEL COPILOTO
+    function clearAllCopilot() {
+      candRoleInput.value = "Planificación Patrimonial";
+      interviewNotes.value = '';
+      document.getElementById('range-tech').value = 0;
+      document.getElementById('range-comm').value = 0;
+      document.getElementById('range-culture').value = 0;
+      document.getElementById('range-problem').value = 0;
+
+      document.querySelectorAll('#questions-list input[type="checkbox"]').forEach(cb => cb.checked = false);
+      selectedQuestions = [];
+
+      calculateScore();
+      resetTimer();
+      updateReport();
+    }
+
+    // COPIAR REPORTE EN FORMATO TEXTO/MARKDOWN
+    function copyToClipboard() {
+      const textToCopy = document.getElementById('report-preview').textContent;
+      const tempTextArea = document.createElement("textarea");
+      tempTextArea.value = textToCopy;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      
+      try {
+        document.execCommand('copy');
+        const toast = document.getElementById('copy-toast');
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 3000);
+      } catch (err) {
+        console.error("Error al copiar reporte", err);
+      }
+      
+      document.body.removeChild(tempTextArea);
+    }
+
+    // GENERAR REPORTE EN MARKDOWN
+    function updateReport() {
+      const name = candNameInput.value || "Inversor de Pruebas";
+      const role = candRoleInput.value || "Planificación Patrimonial";
+      const date = candDateInput.value || new Date().toISOString().split('T')[0];
+
+      const tech = document.getElementById('range-tech').value;
+      const comm = document.getElementById('range-comm').value;
+      const culture = document.getElementById('range-culture').value;
+      const problem = document.getElementById('range-problem').value;
+      const average = ((parseFloat(tech) + parseFloat(comm) + parseFloat(culture) + parseFloat(problem)) / 4).toFixed(1);
+
+      const notes = interviewNotes.value || "Sin notas adicionales del consultor.";
+
+      let qSection = "Ninguna seleccionada.";
+      if (selectedQuestions.length > 0) {
+        qSection = selectedQuestions.map(q => `- ${q}`).join('\n');
+      }
+
+      const markdown = 
+`# Diagnóstico de Entrevista - Faro Patrimonial
+**Cliente/Inversor:** ${name}
+**Objetivo Declarado:** ${role}
+**Fecha:** ${date}
+
+---
+
+### 1. Rúbrica de Disciplina de Inversión
+- Voluntad de Ahorro: ${tech}/5
+- Claridad de Metas: ${comm}/5
+- Tolerancia al Riesgo: ${culture}/5
+- Confianza en Delegación: ${problem}/5
+- **SCORE DE COMPROMISO:** **${average}/5**
+
+### 2. Temas Clave Indagados
+${qSection}
+
+### 3. Notas del Consultor
+${notes}
+
+---
+*Faro Patrimonial • Suite de Asesoría*`;
+
+      document.getElementById('report-preview').textContent = markdown;
+    }
+
+
+    // CÁLCULOS MATEMÁTICOS DEL SIMULADOR V2
+    function calculateDiagnostics() {
+      const clientName = clientNameInput.value || "Inversor de Pruebas";
+      const clientAge = parseInt(clientAgeInput.value) || 35;
+      const clientRetirement = parseInt(clientRetirementInput.value) || 65;
+
+      const assetLiquid = parseFloat(assetLiquidInput.value) || 0;
+      const assetInvested = parseFloat(assetInvestedInput.value) || 0;
+      const assetUse = parseFloat(assetUseInput.value) || 0;
+      const debtTotal = parseFloat(debtTotalInput.value) || 0;
+
+      const incomeMonthly = parseFloat(incomeMonthlyInput.value) || 0;
+      const expenseFixed = parseFloat(expenseFixedInput.value) || 0;
+      const expenseVariable = parseFloat(expenseVariableInput.value) || 0;
+      const expenseDebt = parseFloat(expenseDebtInput.value) || 0;
+
+      // Cálculos Financieros Base
+      const assetsTotal = assetLiquid + assetInvested + assetUse;
+      const netWorth = assetsTotal - debtTotal;
+      const expensesTotal = expenseFixed + expenseVariable;
+      
+      const currentSurplus = incomeMonthly - expensesTotal;
+      const currentSavingsRate = incomeMonthly > 0 ? (currentSurplus / incomeMonthly) * 100 : 0;
+      const debtRatio = incomeMonthly > 0 ? (expenseDebt / incomeMonthly) * 100 : 0;
+      const survivalMonths = expensesTotal > 0 ? (assetLiquid + assetInvested) / expensesTotal : 0;
+
+      // Renderizar widgets generales
+      document.getElementById('calc-net-worth').innerText = `USD ${netWorth.toLocaleString()}`;
+      document.getElementById('calc-savings-rate').innerText = `${currentSavingsRate.toFixed(1)}%`;
+      document.getElementById('calc-survival').innerText = `${survivalMonths.toFixed(1)} meses`;
+
+      // Formato del Label de Ahorro
+      const savingsLabel = document.getElementById('label-savings-rate');
+      if (currentSavingsRate >= 30) {
+        savingsLabel.innerText = "Excelente Ahorro";
+        savingsLabel.className = "text-[10px] text-emerald-400 font-bold uppercase tracking-widest";
+      } else if (currentSavingsRate >= 15) {
+        savingsLabel.innerText = "Ahorro Saludable";
+        savingsLabel.className = "text-[10px] text-indigo-400 font-bold uppercase tracking-widest";
+      } else if (currentSavingsRate > 0) {
+        savingsLabel.innerText = "Ahorro Bajo";
+        savingsLabel.className = "text-[10px] text-amber-500 font-bold uppercase tracking-widest";
+      } else {
+        savingsLabel.innerText = "Déficit mensual";
+        savingsLabel.className = "text-[10px] text-red-500 font-bold uppercase tracking-widest";
+      }
+
+      // Calcular Score General
+      let score = 0;
+      score += Math.min(30, Math.max(0, (currentSavingsRate / 30) * 30)); // 30% ahorro
+      if (debtRatio <= 15) score += 25; // 25% deuda
+      else if (debtRatio < 40) score += Math.max(0, 25 - ((debtRatio - 15) / 25) * 25);
+      score += Math.min(25, Math.max(0, (survivalMonths / 6) * 25)); // 25% cobertura
+      const dynamicAssetsRatio = assetsTotal > 0 ? ((assetLiquid + assetInvested) / assetsTotal) * 20 : 0;
+      score += Math.min(20, dynamicAssetsRatio); // 20% calidad activos
+
+      const finalScore = Math.round(score);
+      document.getElementById('score-number').innerText = finalScore;
+      const scoreCircle = document.getElementById('score-circle');
+      scoreCircle.setAttribute('stroke-dasharray', `${finalScore}, 100`);
+
+      const scoreLabel = document.getElementById('score-label');
+      if (finalScore >= 80) {
+        scoreLabel.innerText = "Excelente Salud ⭐";
+        scoreLabel.className = "text-xs font-bold text-emerald-400 tracking-wider uppercase mt-3";
+        scoreCircle.className.baseVal = "text-emerald-500 transition-all duration-1000";
+      } else if (finalScore >= 50) {
+        scoreLabel.innerText = "Salud Estable ⚖️";
+        scoreLabel.className = "text-xs font-bold text-indigo-400 tracking-wider uppercase mt-3";
+        scoreCircle.className.baseVal = "text-indigo-500 transition-all duration-1000";
+      } else {
+        scoreLabel.innerText = "Alerta Crítica 🚨";
+        scoreLabel.className = "text-xs font-bold text-red-400 tracking-wider uppercase mt-3";
+        scoreCircle.className.baseVal = "text-red-500 transition-all duration-1000";
+      }
+
+      // ETAPA 1: OPTIMIZACIÓN
+      const optPct = parseInt(sliderOpt.value);
+      document.getElementById('slider-opt-val').innerText = `${optPct}%`;
+      document.getElementById('opt-pct').innerText = `${optPct}%`;
+
+      const monthlyRecovered = expensesTotal * (optPct / 100);
+      const optimizedSurplus = Math.max(0, currentSurplus + monthlyRecovered);
+      const annualOptimizedFlow = optimizedSurplus * 12;
+
+      document.getElementById('stage1-monthly-recovered').innerText = `USD ${Math.round(monthlyRecovered).toLocaleString()}`;
+      document.getElementById('opt-current-flow').innerText = `USD ${Math.round(Math.max(0, currentSurplus)).toLocaleString()}`;
+      document.getElementById('opt-new-flow').innerText = `USD ${Math.round(optimizedSurplus).toLocaleString()}`;
+      document.getElementById('opt-annual-flow').innerText = `USD ${Math.round(annualOptimizedFlow).toLocaleString()}`;
+
+      // ETAPA 2: DINÁMICA DE LIBERTAD FINANCIERA (VARIACIÓN SEGÚN EL CASHFLOW)
+      const annualExpenses = expensesTotal * 12;
+      const fiNumber = annualExpenses / 0.04;
+      document.getElementById('fi-number').innerText = `USD ${Math.round(fiNumber).toLocaleString()}`;
+
+      const optSavingsRate = incomeMonthly > 0 ? (optimizedSurplus / incomeMonthly) * 100 : 0;
+
+      const currentYearsBought = (currentSavingsRate > 0 ? currentSavingsRate : 0) / 100;
+      const optimizedYearsBought = optSavingsRate / 100;
+      document.getElementById('years-bought').innerText = `${optimizedYearsBought.toFixed(2)} Años`;
+      document.getElementById('years-bought-desc').innerText = `Con el plan de Faro, por cada año trabajado "compras" ${optimizedYearsBought.toFixed(2)} años de tu vida en libertad (antes comprabas ${currentYearsBought.toFixed(2)}).`;
+
+      const roiEstimate = parseFloat(sliderRoi.value) / 100;
+      
+      function calculateTimeToGoal(principal, monthlyContrib, roi, target) {
+        if (monthlyContrib <= 0 && principal <= 0) return Infinity;
+        if (principal >= target) return 0;
+        
+        const monthlyRate = roi / 12;
+        if (monthlyRate <= 0) {
+          return (target - principal) / (monthlyContrib * 12);
+        }
+        
+        const numerator = (target * monthlyRate) + monthlyContrib;
+        const denominator = (principal * monthlyRate) + monthlyContrib;
+        
+        if (denominator <= 0 || numerator / denominator <= 0) return Infinity;
+        
+        const months = Math.log(numerator / denominator) / Math.log(1 + monthlyRate);
+        return isNaN(months) ? Infinity : months / 12;
+      }
+
+      const currentYearToFi = calculateTimeToGoal(assetInvested, Math.max(0, currentSurplus), roiEstimate, fiNumber);
+      const optimizedYearToFi = calculateTimeToGoal(assetInvested, optimizedSurplus, roiEstimate, fiNumber);
+
+      const timeToFiCurrentText = document.getElementById('time-to-fi-current');
+      if (currentYearToFi === Infinity || isNaN(currentYearToFi)) {
+        timeToFiCurrentText.innerText = "Nunca (Flujo insuficiente)";
+      } else {
+        timeToFiCurrentText.innerText = `${currentYearToFi.toFixed(1)} Años`;
+      }
+
+      const timeToFiOptText = document.getElementById('time-to-fi-optimized');
+      if (optimizedYearToFi === Infinity || isNaN(optimizedYearToFi)) {
+        timeToFiOptText.innerText = "Optimización necesaria";
+        document.getElementById('time-difference-msg').innerText = "Aún requieres más flujo o rentabilidad.";
+      } else {
+        timeToFiOptText.innerText = `${optimizedYearToFi.toFixed(1)} Años`;
+        
+        if (currentYearToFi !== Infinity && !isNaN(currentYearToFi)) {
+          const diff = Math.max(0, currentYearToFi - optimizedYearToFi);
+          document.getElementById('time-difference-msg').innerText = `¡Logras recortar ${diff.toFixed(1)} años de trabajo con este cambio!`;
+        } else {
+          document.getElementById('time-difference-msg').innerText = "¡Pasas de un plan inviable a asegurar tu retiro!";
+        }
+      }
+
+      // ETAPA 3: CONSOLIDADO (INMUNIDAD Y MULTIPLICACIÓN)
+      // Sub-Fase A: Inmunidad
+      const targetMonths = parseInt(sliderMonths.value);
+      document.getElementById('slider-months-val').innerText = `${targetMonths} meses`;
+
+      const requiredFund = expenseFixed * targetMonths;
+      document.getElementById('stage3-fund-required').innerText = `USD ${Math.round(requiredFund).toLocaleString()}`;
+
+      const remainingFundToBuild = Math.max(0, requiredFund - assetLiquid);
+      const fundBuildTime = optimizedSurplus > 0 ? (remainingFundToBuild / optimizedSurplus) : 0;
+      document.getElementById('stage3-fund-time').innerText = `${Math.ceil(fundBuildTime)} meses`;
+
+      // Sub-Fase B: Multiplicación
+      const monthlyContribution = parseFloat(sliderContrib.value);
+      document.getElementById('slider-roi-val').innerText = `${sliderRoi.value}%`;
+      document.getElementById('slider-contrib-val').innerText = `USD ${monthlyContribution}`;
+
+      // Proyecciones de Interés Compuesto
+      updateInvestmentProjections(5, 'proj-5y', 'interest-5y', assetInvested, monthlyContribution, roiEstimate);
+      updateInvestmentProjections(10, 'proj-10y', 'interest-10y', assetInvested, monthlyContribution, roiEstimate);
+      updateInvestmentProjections(20, 'proj-20y', 'interest-20y', assetInvested, monthlyContribution, roiEstimate);
+      updateInvestmentProjections(30, 'proj-30y', 'interest-30y', assetInvested, monthlyContribution, roiEstimate);
+    }
+
+    function updateInvestmentProjections(years, outputId, interestId, principal, monthlyContrib, annualRate) {
+      const months = years * 12;
+      const monthlyRate = annualRate / 12;
+      
+      let futureValue = principal * Math.pow(1 + monthlyRate, months);
+      let futureValueContributions = monthlyContrib * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+      
+      const totalWealth = futureValue + futureValueContributions;
+      const totalContributed = principal + (monthlyContrib * months);
+      const totalInterest = Math.max(0, totalWealth - totalContributed);
+
+      document.getElementById(outputId).innerText = `USD ${Math.round(totalWealth).toLocaleString()}`;
+      document.getElementById(interestId).innerText = `Interés: USD ${Math.round(totalInterest).toLocaleString()}`;
+    }
+
+    // EXPORTACIÓN PDF
+    document.getElementById('btn-generate-pdf').addEventListener('click', () => {
+      document.getElementById('pdf-client-name').innerText = clientNameInput.value || "Inversor de Pruebas";
+      document.getElementById('pdf-score').innerText = document.getElementById('score-number').innerText + "/100";
+      document.getElementById('pdf-score-desc').innerText = document.getElementById('score-label').innerText;
+      document.getElementById('pdf-net-worth').innerText = document.getElementById('calc-net-worth').innerText;
+      document.getElementById('pdf-survival-value').innerText = document.getElementById('calc-survival').innerText;
+
+      document.getElementById('pdf-income').innerText = `USD ${parseFloat(incomeMonthlyInput.value || 0).toLocaleString()}`;
+      const totalExp = parseFloat(expenseFixedInput.value || 0) + parseFloat(expenseVariableInput.value || 0);
+      document.getElementById('pdf-expense').innerText = `USD ${totalExp.toLocaleString()}`;
+      
+      const rawSurplus = parseFloat(incomeMonthlyInput.value || 0) - totalExp;
+      const monthlyRecovered = totalExp * (parseInt(sliderOpt.value) / 100);
+      const optSurplus = Math.max(0, rawSurplus + monthlyRecovered);
+      document.getElementById('pdf-surplus').innerText = `USD ${Math.round(optSurplus).toLocaleString()}`;
+
+      // Etapa 1 en PDF
+      document.getElementById('pdf-s1-recovered').innerText = `+ USD ${Math.round(monthlyRecovered).toLocaleString()} / mes`;
+      
+      // Etapa 2 en PDF
+      document.getElementById('pdf-s2-fi-num').innerText = `FI Target: ${document.getElementById('fi-number').innerText}`;
+      const timeCurText = document.getElementById('time-to-fi-current').innerText;
+      const timeOptText = document.getElementById('time-to-fi-optimized').innerText;
+      document.getElementById('pdf-s2-time-cur').innerText = timeCurText;
+      document.getElementById('pdf-s2-time-opt').innerText = timeOptText;
+
+      // Etapa 3 en PDF
+      document.getElementById('pdf-s3-metrics').innerText = `Retorno: ${sliderRoi.value}% Anual`;
+      document.getElementById('pdf-s3-months').innerText = `${sliderMonths.value} Meses`;
+      document.getElementById('pdf-s3-fund-goal').innerText = document.getElementById('stage3-fund-required').innerText;
+      document.getElementById('pdf-s3-contrib').innerText = `USD ${sliderContrib.value} / mes`;
+
+      // Proyecciones en PDF
+      document.getElementById('pdf-p-5y').innerText = document.getElementById('proj-5y').innerText;
+      document.getElementById('pdf-p-10y').innerText = document.getElementById('proj-10y').innerText;
+      document.getElementById('pdf-p-20y').innerText = document.getElementById('proj-20y').innerText;
+      document.getElementById('pdf-p-30y').innerText = document.getElementById('proj-30y').innerText;
+
+      const element = document.getElementById('pdf-report-template');
+      element.classList.remove('hidden');
+
+      const opt = {
+        margin:       0.3,
+        filename:     `Faro_Patrimonial_Diagnostico_${clientNameInput.value.replace(/\s+/g, '_')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        element.classList.add('hidden');
+      });
+    });
+
+    // Iniciar
+    window.onload = function() {
+      candDateInput.value = new Date().toISOString().split('T')[0];
+      document.getElementById('pdf-date').innerText = candDateInput.value;
+      calculateDiagnostics();
+      updateReport();
+    }
+  </script>
+
+</body>
+</html>

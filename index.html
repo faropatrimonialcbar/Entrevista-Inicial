@@ -1301,10 +1301,30 @@ ${notes}
       });
     });
 
-    // Iniciar
+    // Iniciar y Vincular Eventos de Entrada
     window.onload = function() {
       candDateInput.value = new Date().toISOString().split('T')[0];
       document.getElementById('pdf-date').innerText = candDateInput.value;
+      
+      // Agrupamos todos los elementos interactivos que deben gatillar el recalculo en tiempo real
+      const interactiveInputs = [
+        clientNameInput, clientAgeInput, clientRetirementInput,
+        assetLiquidInput, assetInvestedInput, assetUseInput, debtTotalInput,
+        incomeMonthlyInput, expenseFixedInput, expenseVariableInput, expenseDebtInput,
+        sliderOpt, sliderMonths, sliderRoi, sliderContrib
+      ];
+
+      // Añadimos el escuchador de eventos 'input' a cada uno de ellos
+      interactiveInputs.forEach(input => {
+        if (input) {
+          input.addEventListener('input', () => {
+            calculateDiagnostics();
+            updateReport();
+          });
+        }
+      });
+
+      // Ejecución inicial para pintar datos por defecto
       calculateDiagnostics();
       updateReport();
     }
